@@ -1,8 +1,8 @@
 #include <SoftwareSerial.h>
 #include <Mouse.h>
 #include <Keyboard.h>
-SoftwareSerial mySerial(8, 9); //블루투스의 Tx, Rx핀을 2번 3번핀으로 설정
-                               //아두이노 프로 마이크로 (8, 9), 아두이노 나노(2, 3)
+SoftwareSerial mySerial(8, 9); //set Blutooth Tx, Rx pin to (8, 9)
+                               //Arduino pro micro (8, 9), Arduino nano(2, 3)
 //===============BT serial==============
 String inputData;
 char rawInputByte;
@@ -34,12 +34,12 @@ void BT();//input Data, split Data
 void command(int actNum);
 //======================================
 void setup() {
-  // 시리얼 통신의 속도를 9600으로 설정
+  // set Serial baudrate to 57600
   Serial.begin(57600);
   Serial.println("Hello World!");
 
   pinMode(5,OUTPUT);
-  //블루투스와 아두이노의 통신속도를 9600으로 설정
+  // set Bluetooth serial baudrate to 9600(to change this, you have to change the setting of the HC-05(by using AT-Mode))
   mySerial.begin(9600);
   Mouse.begin();
   Keyboard.begin();
@@ -49,36 +49,46 @@ void setup() {
   delay(100);
 }
 
-void loop() { //코드를 무한반복합니다.
-  //BT();
-  SensorValueRead();
-  BTsignalChecker();
+void loop() { 
+  digitalWrite(5,LOW);
+  if (mySerial.available()){
+    if(mySerial.read() == 's'){
+      digitalWrite(5,HIGH);
+      BTsignalChecker();
+      SensorValueRead();
   
-  for(i = 0; i < 5; i++){
-    if(action(i)) {
-      command(i);
+      for(i = 0; i < 5; i++){
+        if(action(i)) {
+          command(i);
+        }
+      }
+  
+      for(i = 0; i < 7; i++){
+        Serial.print(sensorVal[i]);
+        Serial.print(" : ");
+      }
+      Serial.println();
+      Keyboard.releaseAll();     
     }
   }
-    Keyboard.releaseAll();                                                                                           
-
 }
 
-void BTread(){ // new version
+int BTread(){ // read raw data from HC-05
   while (mySerial.available()<2);
   int v0 = (unsigned char)mySerial.read();
   int v1 = (unsigned char)mySerial.read();
-  return((v0|v1 << 8) - 2000);
+  return((v0|v1 << 8) - 2000);  // integrate two int to one and minus 2000(added from Transmitter)
 }
 
 void SensorValueRead(){
    for(int i = 0; i < 7; i++){
-     sensorVal[i] = BTread();
+     sensorVal[i] = BTread(); // put BT signal into the integer sensorvalue array 
    }
    sensorVal[1] = sensorVal[1]*-1;
 }
 
-void BTsignalChecker(){
-  if (mySerial.avaliable())
+void BTsignalChecker(){ // LED indicator for BT connection
+  if (mySerial.available())
     digitalWrite(5, HIGH);
   else
     digitalWrite(5, LOW);
@@ -87,55 +97,13 @@ void BTsignalChecker(){
 
 void BT()
 {
-
-  while(!mySerial);
-  if (mySerial.available()) {
-    digitalWrite(5,HIGH);
-    rawInputByte = mySerial.read();
-    inputData += String(rawInputByte);
-  }
-  else{
-    digitalWrite(5,LOW);
-  }
-  //if (mySerial.available() == false) Serial.println("no");
-  //Serial.println(inputData);
-  if (Serial.available()) {
-    mySerial.write(Serial.read());
-  }
-  if(inputData.endsWith("/") == true) 
-  {  
-     Serial.println("input Data is " + inputData);
-     
-    for(i = 0; i < 3; i++)
-    {
-      splVal[i] = inputData.substring(4 * i + 1, 4 * i + 4);
-      splVal[i].toCharArray(bridge_gyro, 4);
-      if(inputData.substring(4 * i, 4 * i + 1) == ">") 
-      {
-        sensorVal[i] = atoi(bridge_gyro);
-      }
-      if(inputData.substring(4 * i, 4 * i + 1) == "<")
-      {
-        sensorVal[i] = -1 * atoi(bridge_gyro); 
-      }
+  if (mySerial.available()){
+    if(mySerial.read() == 's'){
+      digitalWrite(5,HIGH);
+      BTsignalChecker();
+      SensorValueRead();   
     }
-    for(i = 3; i<7; i++)
-    {
-      splVal[i] = inputData.substring(12 + 3 * (i-3), 12 + 3 * (i-3) + 3);
-      splVal[i].toCharArray(bridge_finger, 4);
-      sensorVal[i] = atoi(bridge_finger);
-    }
-   // Serial.println("");
-    inputData = "";
-    sensorVal[1] = sensorVal[1] * -1;
-    for(i = 0; i < 7; i++){
-      Serial.print(sensorVal[i]);
-      Serial.print("  :  ");
-    }
-    Serial.println("");
   }
-  
-  delay(4);
 }
 bool action(int actionID){
   if (actionID == 0) return grab();
