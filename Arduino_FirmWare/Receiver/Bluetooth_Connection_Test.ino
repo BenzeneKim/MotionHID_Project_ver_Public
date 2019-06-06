@@ -50,8 +50,10 @@ void setup() {
 }
 
 void loop() { //코드를 무한반복합니다.
-  BT();
-
+  //BT();
+  SensorValueRead();
+  BTsignalChecker();
+  
   for(i = 0; i < 5; i++){
     if(action(i)) {
       command(i);
@@ -60,6 +62,28 @@ void loop() { //코드를 무한반복합니다.
     Keyboard.releaseAll();                                                                                           
 
 }
+
+void BTread(){ // new version
+  while (mySerial.available()<2);
+  int v0 = (unsigned char)mySerial.read();
+  int v1 = (unsigned char)mySerial.read();
+  return((v0|v1) << 8) - 2000);
+}
+
+void SensorValueRead(){
+   for(int i = 0; i < 7; i++){
+     sensorVal[i] = BTread();
+   }
+   sensorVal[1] = sensorVal[1]*-1;
+}
+
+void BTsignalChecker(){
+  if (mySerial.avaliable())
+    digitalWrite(5, HIGH);
+  else
+    digitalWrite(5, LOW);
+}
+    
 
 void BT()
 {
