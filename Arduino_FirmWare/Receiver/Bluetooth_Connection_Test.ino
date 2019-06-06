@@ -67,7 +67,7 @@ void BTread(){ // new version
   while (mySerial.available()<2);
   int v0 = (unsigned char)mySerial.read();
   int v1 = (unsigned char)mySerial.read();
-  return((v0|v1) << 8) - 2000);
+  return((v0|v1 << 8) - 2000);
 }
 
 void SensorValueRead(){
