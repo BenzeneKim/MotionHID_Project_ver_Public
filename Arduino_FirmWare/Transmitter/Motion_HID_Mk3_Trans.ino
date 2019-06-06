@@ -59,14 +59,26 @@ void loop() {
   gyroY = gyroY/600/1.1;
   gyroZ = gyroZ/600/-1;
 
+  /*
   Serial.print(gyroX);
   Serial.print("  :  ");
   Serial.print(gyroY);
   Serial.print("  :  ");
   Serial.print(gyroZ);
   Serial.print("  :  ");
+ */
   
-  rawGyroValue[0] = (String)(int)abs(gyroX);
+  //---------------send raw int value---------------------
+  BTwrite((int)gyroX);
+  BTwrite((int)gyroY);
+  BTwrite((int)gyroZ);
+  for (i = 0; i < 4; i++){
+    BTwrite(fingerPosition[i]);
+  }
+  
+  
+  //-------------make data to one line--------------
+ /* rawGyroValue[0] = (String)(int)abs(gyroX);
   rawGyroValue[1] = (String)(int)abs(gyroY);
   rawGyroValue[2] = (String)(int)abs(gyroZ);
 
@@ -99,7 +111,7 @@ void loop() {
   }
   sendMsg += "/";
   Serial.println(sendMsg);
-  BTport.print(sendMsg);
+  BTport.print(sendMsg);*/
   
  
   /*
@@ -154,6 +166,14 @@ while(gyroY>40){
   delay(10);
   */
 }
+
+
+void BTwrite(int value){
+  value += 2000;
+  BTport.write(value & 0xff);
+  BTport.write((value>>8) & 0xff);
+}
+
 
 void GetGyrosensorValue(){
   // put your setup code here, to run once:      Serial.begin(115200);
