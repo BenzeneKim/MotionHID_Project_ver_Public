@@ -43,6 +43,7 @@ void setup() {
 }
   
 void loop() {
+  //while(!BTport);
   // put your main code here, to run repeatedly:
   fingerPosition[0] = analogRead(A0);
   fingerPosition[1] = analogRead(A1);
@@ -59,112 +60,14 @@ void loop() {
   gyroY = gyroY/600/1.1;
   gyroZ = gyroZ/600/-1;
 
-  /*
-  Serial.print(gyroX);
-  Serial.print("  :  ");
-  Serial.print(gyroY);
-  Serial.print("  :  ");
-  Serial.print(gyroZ);
-  Serial.print("  :  ");
- */
-  
   //---------------send raw int value---------------------
+  BTport.write('s');
   BTwrite((int)gyroX);
   BTwrite((int)gyroY);
   BTwrite((int)gyroZ);
   for (i = 0; i < 4; i++){
     BTwrite(fingerPosition[i]);
   }
-  
-  
-  //-------------make data to one line--------------
- /* rawGyroValue[0] = (String)(int)abs(gyroX);
-  rawGyroValue[1] = (String)(int)abs(gyroY);
-  rawGyroValue[2] = (String)(int)abs(gyroZ);
-
-  if(gyroX >= 0)gyroPM[0] = ">";
-  if(gyroX < 0)gyroPM[0] = "<";
-  if(gyroY >= 0)gyroPM[1] = ">";
-  if(gyroY < 0)gyroPM[1] = "<";
-  if(gyroZ >= 0)gyroPM[2] = ">";
-  if(gyroZ < 0)gyroPM[2] = "<";
-  
-  for(i = 0; i < 3; i++)
-  {
-    finalData[i] += gyroPM[i];
-    if(strlen(rawGyroValue[i].c_str()) < 3)
-    {
-      for(int j = 0; j < 3 - strlen(rawGyroValue[i].c_str()); j++)
-      {
-        finalData[i] += "0";
-      }
-    }
-    finalData[i] += rawGyroValue[i];
-  }
-  for(i = 3; i < 7; i++)
-  {
-    finalData[i] = String(fingerPosition[i-3]);
-  }
-  for(i = 0; i < 7; i++)
-  {
-    sendMsg += finalData[i];
-  }
-  sendMsg += "/";
-  Serial.println(sendMsg);
-  BTport.print(sendMsg);*/
-  
- 
-  /*
-
-  
-  for(i = 0; i < 4; i++)
-  {
-    rawFingerValue[i] = (String)fingerPosition[i];
-  }
-
-  
-
-  for(i = 3; i < 7; i++)
-  {
-    if(strlen(rawFingerValue[i].c_str()) < 4)
-    {
-      for(int j = 0; j < 5 - strlen(rawFingerValue[i].c_str()); j++)
-      {
-        fixedData[i] += "0";
-      }
-    }
-    fixedData[i] += rawFingerValue[i];
-  }
-
- 
-
-  BTport.println(sendMsg);
-  Serial.println(sendMsg);*/
-/*Serial.print("\t");
-Serial.print(gyroY);Serial.print("\t");
-Serial.print(gyroZ);Serial.print("\t");
-
-while(gyroY>40){
-  Serial.println("Drag Down");
-  timePassed +=1;
-  if (timePassed>100){
-    break;
-  }
-  GetGyrosensorValue();
-  while(gyroZ>40&&gyroY<-40){
-    Serial.println("Drag UpLeft");
-    timePassed += 1;
-    if(timePassed > 150){
-      timePassed = 0;
-      break;
-    
-  }
-  Serial.print(timePassed);
-  Serial.print("\t");
-  delay(10);
-}
-  delay(10);
-  */
 }
 
 
@@ -291,39 +194,5 @@ while (i2cRead(0x3B, i2cData, 14));
     gyroXangle = kalAngleX;
   if (gyroYangle < -180 || gyroYangle > 180)
     gyroYangle = kalAngleY;
-
-  /* Print Data 
-#if 0 // Set to 1 to activate
-  Serial.print(accX); Serial.print("\t");
-  Serial.print(accY); Serial.print("\t");
-  Serial.print(accZ); Serial.print("\t");
-
-  Serial.print(gyroX); Serial.print("\t");
-  Serial.print(gyroY); Serial.print("\t");
-  Serial.print(gyroZ); Serial.print("\t");
-
-  Serial.print("\t");
-#endif
-
-  Serial.print(roll); Serial.print("\t");
-  Serial.print(gyroXangle); Serial.print("\t");
-  Serial.print(compAngleX); Serial.print("\t");
-  Serial.print(kalAngleX); Serial.print("\t");
-
-  Serial.print("\t");
-
-  Serial.print(pitch); Serial.print("\t");
-  Serial.print(gyroYangle); Serial.print("\t");
-  Serial.print(compAngleY); Serial.print("\t");
-  Serial.print(kalAngleY); Serial.print("\t");
-
-#if 0 // Set to 1 to print the temperature
-  Serial.print("\t");
-
-  double temperature = (double)tempRaw / 340.0 + 36.53;
-  Serial.print(temperature); Serial.print("\t");
-#endif
-
-  Serial.print("\r\n");*/
   delay(2);
 }
